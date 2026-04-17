@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<body style="background-image:url(./r.jpg);background-size: cover; ">
+    <div style="position:absolute;top:40%;left:40%;background-color:#46b2baa4;border-radius:1000px;width:450px">
+        
+<h1 style="color:#ffebcd;font-family:papyrus;margin-top:15px ;padding-left:40px;"> Welcome to Umbrella OS! </h1>
+<p style="color:#ffebcd;font-family: papyrus"></p>
+<p style ="color:#ffebcd;font-family:papyrus;padding-left:150px" >~~Hello Umbrellas~~</p>
+        
+    </div>
+     
+    <div style="position:absolute;top:100%;width:100%;border-radius: 1000px;gap:30px; display:flex;backdrop-filter:blur(13px);justify-content: space-between ;background-color:rgba(0, 0, 0, 0.25)">
+        <img src="umbrella.png" style="width:24px;height:24px;object-fit:cover;border-radius:35px;background-color:#00000080;object-fit:cover;padding-top:10px;padding-left:10px;padding-bottom:10px;padding-right:10px;margin-top:15px;margin-left:15px"/>
+        <p style=font-weight:300px;color:#fffffff9;font-family:copperplate;border-radius:35px;background-color:#00000080;object-fit:cover;padding-top:10px;padding-left:10px;padding-bottom:10px;padding-right:10px>
+            U OS
+        </p>
+        <p id="time" style="margin-right:20px;color:#fffffff9;padding-right:2px;font-family:copperplate;font-weight:300px;border-radius:35px;object-fit:cover;background-color:#00000080;object-fit:cover;padding-top:10px;padding-left:10px;padding-bottom:10px;padding-right:10px"> Time </p>
+            
+       
+
+
+    </div>
+    <script>
+        var CT =new Date().toLocaleString();
+        var TT = document.querySelector("#time");
+        TT.innerHTML=CT
+    </script>
+</body>
+</html>
