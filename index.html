@@ -1,33 +1,374 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <script type="module" src="./script.js"></script>
-        <link rel="stylesheet" type="text/css"  href="style.css"/>
-    </head>
-<body style="background-image:url(./6122609.jpg);background-size:cover;background-repeat:no-repeat;min-height:100vh;margin:0px; ">
-    
-    <div id="window" style="border-color:white;border:solid;width:fit-content;position:absolute;top:50%;left:50%;background-color:#b3f0f5;border-radius:1000px;width:450px">
-     <p id="windowheader"> <img src="move.png" style="border-radius: 35px;width:24px;height:24px;left:80%;top:5%;position:absolute;">
-        <p style="cursor: pointer"id="closewindow"><img src="icons8-macos-close-30.png" style="border-radius: 35px;width:25px;height:25px;left:85%;top:5%;position:absolute"></p>
-     </p>
-        
-     
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Umbrella OS</title>
+    <style>
+        body {
+            overflow: hidden;
+            background-image: url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2564&auto=format&fit=crop');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #e0e0e0;
+            transition: background 0.5s ease;
+        }
 
-<h2  style="color:#ffffff;font-family:papyrus;margin-top:30px;padding-left:90px;"> Welcome to Umbrella OS! </h2>
+        .glass-panel {
+            background: rgba(10, 10, 15, 0.4);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
 
-<h2 style ="color:#ffffff;font-family:papyrus;padding-left:90px;padding-bottom:10px;font-weight:300px;">~~Hello Umbrellas~~</h2>
+        .accent-text { color: #ff4444; }
 
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(5, 5, 10, 0.6); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+            z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+        }
+        #lock-screen.unlocked { transform: translateY(-100%); }
+        .lock-time { font-size: 6rem; font-weight: 200; margin: 0; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .lock-date { font-size: 1.5rem; font-weight: 400; margin-top: -10px; margin-bottom: 50px; color: #b3b3b3; }
+        .user-avatar { width: 80px; height: 80px; background: rgba(255, 0, 0, 0.2); border: 2px solid #ff3333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 10px; box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+        .password-input { padding: 12px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.5); color: white; font-size: 16px; outline: none; text-align: center; letter-spacing: 2px; transition: border 0.3s; }
+        .password-input:focus { border-color: #ff3333; }
+        #login-error { color: #ff4444; font-size: 12px; opacity: 0; transition: opacity 0.3s; }
+
+        .desktop-icon {
+            position: absolute; left: 30px; padding: 15px; border-radius: 16px;
+            display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.3s ease;
+        }
+        .desktop-icon:hover { background: rgba(255, 255, 255, 0.05); transform: scale(1.05); }
+        .app-icon { width: 48px; height: 48px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; font-size: 24px; background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2); }
+        .app-label { margin: 8px 0 0 0; font-size: 13px; font-weight: 500; text-align: center; color: white; text-shadow: 0 1px 3px rgba(0,0,0,0.8); }
+
+        .app-window { position: absolute; border-radius: 16px; overflow: hidden; z-index: 10; display: none; }
+        .window-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; background: rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(255, 255, 255, 0.05); cursor: move; }
+        .close-btn { width: 16px; height: 16px; cursor: pointer; opacity: 0.6; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .close-btn:hover { opacity: 1; color: #ff3333; }
+
+        .calc-btn { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; cursor: pointer; font-size: 18px; transition: 0.2s; }
+        .calc-btn:hover { background: rgba(255,255,255,0.15); }
+        .calc-op { background: rgba(255,51,51,0.1); border-color: rgba(255,51,51,0.3); color: #ff4444; }
+        .calc-op:hover { background: rgba(255,51,51,0.3); }
+
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0; } 100% { opacity: 1; } }
+
+        #taskbar { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); border-radius: 24px; display: flex; gap: 15px; padding: 10px 20px; align-items: center; }
+        .dock-item { color: white; font-weight: 600; font-size: 14px; border-radius: 12px; padding: 10px 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s ease; }
+        .dock-item:hover { background-color: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+
+    <div id="lock-screen">
+        <h1 class="lock-time" id="lock-time-display">00:00</h1>
+        <p class="lock-date" id="lock-date-display"></p>
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 15px;">
+            <div class="user-avatar">☂️</div>
+            <h3 style="margin: 0; font-weight: 400;">Umbrella Admin</h3>
+            <input type="password" id="os-password" class="password-input" placeholder="Enter PIN (admin)">
+            <p id="login-error">Incorrect password</p>
         </div>
-       
-    <div style="position:absolute;top:100%;width:100%;border-radius: 1000px;gap:30px; display:flex;backdrop-filter:blur(13px);justify-content: space-between ;background-color:rgba(0, 0, 0, 0.25)">
-        <p style="cursor: pointer"id="openwindow" ><img src="umbrella.png" style="border-color:#f7d6bf;border:solid;width:24px;height:24px;object-fit:cover;border-radius:35px;background-color:#00000080;padding-top:10px;padding-left:10px;padding-bottom:10px;padding-right:10px;;margin-left:15px;"/>
-        </p>
-        <p style="border:solid;border-color:#f7d6bf;font-weight:300px;color:#fffffff9;font-family:copperplate;border-radius:35px;background-color:#00000080;object-fit:cover;padding-top:15px;padding-left:10px;padding-right:10px">
-            U OS
-        </p>
-        <p id="time" style="border-color:#f7d6bf;border:solid;margin-right:20px;color:#fffffff9;padding-right:2px;font-family:copperplate;font-weight:300px;border-radius:35px;object-fit:cover;background-color:#00000080;object-fit:cover;padding-top:10px;padding-left:5px;padding-right:10px"> Time </p>
-            
     </div>
- 
-<script src="script.js"></script>
-</html>      
+
+    <div id="Icon-Notes" class="desktop-icon" style="top: 50px;">
+        <div class="app-icon">📝</div>
+        <p class="app-label">U Notes</p> 
+    </div>
+
+    <div id="Icon-Calc" class="desktop-icon" style="top: 160px;">
+        <div class="app-icon" style="border-color: rgba(255, 51, 51, 0.4);">🧮</div>
+        <p class="app-label">U Calc</p> 
+    </div>
+
+    <div id="Icon-Camera" class="desktop-icon" style="top: 270px;">
+        <div class="app-icon">📷</div>
+        <p class="app-label">Bio-Scan</p> 
+    </div>
+
+    <div id="Icon-Browser" class="desktop-icon" style="top: 380px;">
+        <div class="app-icon" style="border-color: rgba(100, 150, 255, 0.4); color: #88bbff;">🌐</div>
+        <p class="app-label">U-Net</p> 
+    </div>
+
+    <div id="Icon-DoNotOpen" class="desktop-icon" style="bottom: 100px;">
+        <div class="app-icon" style="background: rgba(255,0,0,0.2); border: 1px solid rgba(255,0,0,0.8); box-shadow: 0 4px 15px rgba(255,0,0,0.6);">⚠️</div>
+        <p class="app-label" style="color: #ff4444; font-weight: bold; text-shadow: 0 0 5px red;">DO NOT OPEN</p>
+    </div>
+
+    <div id="window-welcome" class="glass-panel app-window" style="display:block; top: 30%; left: 35%; width: 450px;">
+        <div class="window-header" id="window-welcomeheader"> 
+            <span style="font-weight: 600; font-size: 14px;">☂️ System</span>
+            <div class="close-btn" onclick="closeWin('window-welcome')">✕</div>
+        </div>
+        <div style="padding: 40px; text-align: center;">
+            <h2>Welcome to <span class="accent-text">Umbrella OS</span></h2>
+            <h3 style="font-weight: 300; opacity: 0.8;">Our business is life itself.</h3>
+        </div>
+    </div>      
+    
+    <div id="window-notes" class="glass-panel app-window" style="top: 20%; left: 45%; width: 400px; padding: 20px;">
+        <div class="window-header" id="window-notesheader" style="background: transparent; padding: 0; border: none; margin-bottom: 10px;">
+            <span style="font-weight: 600;">📝 Encrypted Notes</span>
+            <div class="close-btn" onclick="closeWin('window-notes')">✕</div>
+        </div>
+        <textarea id="notepad" placeholder="Start typing..." style="width: 100%; height: 220px; border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.4); color: white; resize: none; outline: none; margin-top: 10px; box-sizing: border-box;"></textarea>
+        <button id="savenote" style="margin-top: 15px; padding: 10px; background: rgba(255, 51, 51, 0.2); color: white; border: 1px solid rgba(255, 51, 51, 0.5); border-radius: 8px; cursor: pointer; width: 100%;">Encrypt & Save</button>
+    </div>
+
+    <div id="window-calc" class="glass-panel app-window" style="top: 15%; left: 15%; width: 320px;">
+        <div class="window-header" id="window-calcheader"> 
+            <span style="font-weight: 600; font-size: 14px;">🧮 Calculator</span>
+            <div class="close-btn" onclick="closeWin('window-calc')">✕</div>
+        </div>
+        <div style="padding: 20px;">
+            <input type="text" id="calc-display" disabled value="0" style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; font-size: 28px; text-align: right; margin-bottom: 15px; font-family: monospace;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <button class="calc-btn calc-op" onclick="calc('clear')">C</button>
+                <button class="calc-btn calc-op" onclick="calc('del')">DEL</button>
+                <button class="calc-btn calc-op" onclick="calc('op', '/')">÷</button>
+                <button class="calc-btn calc-op" onclick="calc('op', '*')">×</button>
+                <button class="calc-btn" onclick="calc('num', '7')">7</button>
+                <button class="calc-btn" onclick="calc('num', '8')">8</button>
+                <button class="calc-btn" onclick="calc('num', '9')">9</button>
+                <button class="calc-btn calc-op" onclick="calc('op', '-')">-</button>
+                <button class="calc-btn" onclick="calc('num', '4')">4</button>
+                <button class="calc-btn" onclick="calc('num', '5')">5</button>
+                <button class="calc-btn" onclick="calc('num', '6')">6</button>
+                <button class="calc-btn calc-op" onclick="calc('op', '+')">+</button>
+                <button class="calc-btn" onclick="calc('num', '1')">1</button>
+                <button class="calc-btn" onclick="calc('num', '2')">2</button>
+                <button class="calc-btn" onclick="calc('num', '3')">3</button>
+                <button class="calc-btn calc-op" style="grid-row: span 2; background: rgba(255,51,51,0.4); color: white;" onclick="calc('eval')">=</button>
+                <button class="calc-btn" style="grid-column: span 2;" onclick="calc('num', '0')">0</button>
+                <button class="calc-btn" onclick="calc('num', '.')">.</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="window-camera" class="glass-panel app-window" style="top: 10%; left: 30%; width: 500px; background: rgba(5,5,10,0.9);">
+        <div class="window-header" id="window-cameraheader"> 
+            <span style="font-weight: 600; font-size: 14px; color: #ff4444;">🔴 Bio-Scan Feed</span>
+            <div class="close-btn" onclick="closeCamera()">✕</div>
+        </div>
+        <div style="padding: 15px; display: flex; flex-direction: column; align-items: center;">
+            <div style="position: relative; width: 100%; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,51,51,0.5); background: #000; min-height: 300px;">
+                <video id="camera-feed" autoplay playsinline style="width: 100%; display: block; transform: scaleX(-1);"></video>
+                <div style="position: absolute; top: 10px; left: 10px; color: red; font-family: monospace; font-size: 12px; font-weight: bold;">REC <span style="display:inline-block; width:8px; height:8px; background:red; border-radius:50%; animation: blink 1s infinite;"></span></div>
+                <div id="cam-error" style="display:none; position:absolute; top:45%; width:100%; text-align:center; color:red; font-family:monospace;">NO SIGNAL</div>
+                <canvas id="camera-canvas" style="display: none;"></canvas>
+            </div>
+            <div id="photo-gallery" style="display:flex; gap:10px; width:100%; margin-top:10px; overflow-x:auto; min-height: 60px;"></div>
+            <button id="capture-btn" style="margin-top: 15px; width: 60px; height: 60px; border-radius: 50%; background: rgba(255,51,51,0.8); border: 3px solid white; cursor: pointer; box-shadow: 0 0 15px rgba(255,0,0,0.5);"></button>
+        </div>
+    </div>
+
+    <div id="window-browser" class="glass-panel app-window" style="top: 10%; left: 20%; width: 650px; height: 450px;">
+        <div class="window-header" id="window-browserheader"> 
+            <span style="font-weight: 600; font-size: 14px; color: #88bbff;">🌐 U-Net Global Network</span>
+            <div class="close-btn" onclick="closeWin('window-browser')">✕</div>
+        </div>
+        <div style="display: flex; padding: 10px; background: rgba(0, 0, 0, 0.6); gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+            <input type="text" id="browser-url" value="https://en.wikipedia.org/wiki/Umbrella_Corporation" style="flex-grow: 1; padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.8); color: white; outline: none; font-family: monospace;">
+            <button onclick="navBrowser()" style="background: rgba(100, 150, 255, 0.2); border: 1px solid rgba(100, 150, 255, 0.5); color: white; border-radius: 20px; padding: 0 20px; cursor: pointer; font-weight: bold; transition: 0.2s;">GO</button>
+        </div>
+        <div style="width: 100%; height: calc(100% - 92px); background: #ffffff;">
+            <iframe id="browser-frame" src="https://en.wikipedia.org/wiki/Umbrella_Corporation" style="width: 100%; height: 100%; border: none;"></iframe>
+        </div>
+    </div>
+
+    <div id="snake-widget" class="glass-panel" style="position: absolute; right: 30px; top: 50px; width: 280px; border-radius: 16px; padding: 20px; text-align: center; z-index: 5;">
+        <p style="font-weight: bold; margin: 0 0 5px 0; font-size: 14px;">Bio-Hazard Simulator</p>
+        <p id="snake-status" style="color: #888; font-family: monospace; margin: 0; font-size: 12px;">🤖 Auto (Click to override)</p>
+        <canvas id="snake-canvas" width="240" height="240" style="background-color: rgba(0,0,0,0.8); border-radius: 12px; cursor: pointer; border: 1px solid rgba(255, 51, 51, 0.3); margin-top: 15px;"></canvas>
+        <p id="snake-score" style="font-family: monospace; font-weight: bold; font-size: 16px; margin: 10px 0 0 0;">Points: 0</p>
+    </div>
+
+    <div id="jumpscare-container" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: black; z-index: 999999; justify-content: center; align-items: center; cursor: none;">
+        <style>@keyframes violent-shake { 0% { transform: translate(5px, 5px) scale(1.1); filter: invert(0%); } 20% { transform: translate(-5px, -5px) scale(1.2); filter: invert(100%); } 40% { transform: translate(-5px, 5px) scale(1.1); filter: invert(0%); } 60% { transform: translate(5px, -5px) scale(1.3); filter: invert(100%); } 80% { transform: translate(-5px, -5px) scale(1.1); filter: invert(0%); } 100% { transform: translate(5px, 5px) scale(1.2); filter: invert(100%); } }</style>
+        <img src="https://images.unsplash.com/photo-1508784411316-02b8cd4d3a3a?q=80&w=2564" style="width: 100%; height: 100%; object-fit: cover; animation: violent-shake 0.1s infinite;" alt="Zombie">
+    </div>
+
+    <div id="taskbar" class="glass-panel">
+        <div class="dock-item" onclick="openWin('window-welcome')" style="font-size: 20px;">☂️</div>
+        <div class="dock-item" id="lock-btn" style="font-size:20px;">🔒</div>
+        <div class="dock-item" id="change-bg" style="font-size:20px;">🎨</div>
+        <div class="dock-item" style="letter-spacing: 1px; font-weight: bold;"> <span class="accent-text">U</span> OS</div>
+        <div class="dock-item" id="time" style="min-width: 70px; font-variant-numeric: tabular-nums;">Time</div>
+    </div>
+
+    <script>
+        let highestZ = 10;
+
+        function openWin(id) { 
+            const win = document.getElementById(id); 
+            win.style.display = 'block'; 
+            win.style.zIndex = ++highestZ; 
+        }
+        function closeWin(id) { document.getElementById(id).style.display = 'none'; }
+        
+        document.querySelectorAll('.app-window').forEach(win => {
+            win.addEventListener('mousedown', () => win.style.zIndex = ++highestZ);
+            dragElement(win);
+        });
+
+        function dragElement(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            const header = document.getElementById(elmnt.id + "header");
+            if (header) header.onmousedown = dragMouseDown; 
+            else elmnt.onmousedown = dragMouseDown;
+
+            function dragMouseDown(e) {
+                e = e || window.event; e.preventDefault();
+                pos3 = e.clientX; pos4 = e.clientY;
+                document.onmouseup = closeDragElement; document.onmousemove = elementDrag;
+                elmnt.style.zIndex = ++highestZ;
+            }
+            function elementDrag(e) {
+                e = e || window.event; e.preventDefault();
+                pos1 = pos3 - e.clientX; pos2 = pos4 - e.clientY;
+                pos3 = e.clientX; pos4 = e.clientY;
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px"; elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            }
+            function closeDragElement() { document.onmouseup = null; document.onmousemove = null; }
+        }
+
+        const lockScreen = document.getElementById('lock-screen');
+        const passInput = document.getElementById('os-password');
+        
+        passInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (passInput.value === 'admin') {
+                    lockScreen.classList.add('unlocked');
+                    passInput.value = ''; document.getElementById('login-error').style.opacity = '0';
+                } else {
+                    document.getElementById('login-error').style.opacity = '1';
+                    passInput.style.transform = 'translateX(-10px)';
+                    setTimeout(() => passInput.style.transform = 'translateX(10px)', 50);
+                    setTimeout(() => passInput.style.transform = 'translateX(0)', 100);
+                }
+            }
+        });
+        document.getElementById('lock-btn').onclick = () => { lockScreen.classList.remove('unlocked'); passInput.focus(); };
+
+        setInterval(() => {
+            const now = new Date();
+            const time = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('time').innerText = time;
+            document.getElementById('lock-time-display').innerText = time;
+            document.getElementById('lock-date-display').innerText = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' });
+        }, 1000);
+
+        document.getElementById('Icon-Notes').ondblclick = () => openWin('window-notes');
+        document.getElementById('Icon-Calc').ondblclick = () => openWin('window-calc');
+        document.getElementById('Icon-Browser').ondblclick = () => openWin('window-browser');
+        
+        function navBrowser() {
+            let url = document.getElementById('browser-url').value;
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+                document.getElementById('browser-url').value = url;
+            }
+            document.getElementById('browser-frame').src = url;
+        }
+
+        document.getElementById('browser-url').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                navBrowser();
+            }
+        });
+
+        const notepad = document.getElementById('notepad');
+        const saveBtn = document.getElementById('savenote');
+        window.onload = () => { if (localStorage.getItem('u_notes')) notepad.value = localStorage.getItem('u_notes'); passInput.focus(); };
+        saveBtn.onclick = () => {
+            localStorage.setItem('u_notes', notepad.value);
+            saveBtn.innerText = "Saved Securely"; saveBtn.style.background = "rgba(40, 167, 69, 0.4)";
+            setTimeout(() => { saveBtn.innerText = "Encrypt & Save"; saveBtn.style.background = "rgba(255, 51, 51, 0.2)"; }, 1500);
+        };
+
+        let cVal = '0';
+        function calc(action, val) {
+            if (action === 'clear') cVal = '0';
+            else if (action === 'del') cVal = cVal === 'Error' ? '0' : cVal.slice(0, -1) || '0';
+            else if (action === 'num') cVal = (cVal === '0' || cVal === 'Error') ? val : cVal + val;
+            else if (action === 'op') cVal = (['+', '-', '*', '/'].includes(cVal.slice(-1))) ? cVal.slice(0, -1) + val : cVal + val;
+            else if (action === 'eval') {
+                try { cVal = String(new Function('return ' + cVal)()); if(cVal==='NaN'||cVal==='Infinity') cVal='Error'; } 
+                catch (e) { cVal = 'Error'; }
+            }
+            document.getElementById('calc-display').value = cVal;
+        }
+
+        let stream = null;
+        document.getElementById('Icon-Camera').ondblclick = async () => {
+            openWin('window-camera');
+            try { document.getElementById('cam-error').style.display='none'; stream = await navigator.mediaDevices.getUserMedia({video:true}); document.getElementById('camera-feed').srcObject = stream; }
+            catch(e) { document.getElementById('cam-error').style.display='block'; }
+        };
+        function closeCamera() { closeWin('window-camera'); if(stream){ stream.getTracks().forEach(t=>t.stop()); stream=null; document.getElementById('camera-feed').srcObject=null; } }
+        
+        document.getElementById('capture-btn').onclick = () => {
+            if(!stream) return;
+            const video = document.getElementById('camera-feed'), canvas = document.getElementById('camera-canvas'), ctx = canvas.getContext('2d');
+            canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+            ctx.translate(canvas.width, 0); ctx.scale(-1, 1); ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const img = document.createElement('img'); img.src = canvas.toDataURL(); 
+            img.style.cssText = "height:60px; border-radius:4px; border:1px solid rgba(255,255,255,0.3);";
+            document.getElementById('photo-gallery').prepend(img);
+        };
+
+        const scream = new Audio('https://cdn.pixabay.com/download/audio/2022/03/15/audio_18dc9cb725.mp3?filename=monster-roar-6819.mp3');
+        document.getElementById('Icon-DoNotOpen').ondblclick = () => {
+            document.getElementById('jumpscare-container').style.display = 'flex';
+            scream.currentTime = 0; scream.play().catch(e=>{});
+            setTimeout(() => { document.getElementById('jumpscare-container').style.display = 'none'; }, 2000);
+        };
+
+        const sCtx = document.getElementById("snake-canvas").getContext("2d");
+        let snake = [{x: 120, y: 120}], dx = 10, dy = 0, fx, fy, score = 0, isP = false;
+        function genF() { fx = Math.round((Math.random()*230)/10)*10; fy = Math.round((Math.random()*230)/10)*10; } genF();
+        function sLoop() {
+            if (!isP) {
+                let h = snake[0];
+                if (fx > h.x && dx !== -10) { dx = 10; dy = 0; } else if (fx < h.x && dx !== 10) { dx = -10; dy = 0; }
+                else if (fy > h.y && dy !== -10) { dx = 0; dy = 10; } else if (fy < h.y && dy !== 10) { dx = 0; dy = -10; }
+            }
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy }; snake.unshift(head);
+            if (head.x === fx && head.y === fy) { score+=10; document.getElementById('snake-score').innerText="Points: "+score; genF(); } else { snake.pop(); }
+            
+            let dead = head.x<0 || head.x>=240 || head.y<0 || head.y>=240;
+            for(let i=4; i<snake.length; i++) if(snake[i].x===head.x && snake[i].y===head.y) dead=true;
+            if (dead) { snake=[{x:120,y:120}]; dx=10; dy=0; score=0; document.getElementById('snake-score').innerText="Points: 0"; genF(); }
+            
+            sCtx.fillStyle = "rgba(0,0,0,0.8)"; sCtx.fillRect(0,0,240,240);
+            sCtx.fillStyle = "#ff3333"; sCtx.fillRect(fx,fy,10,10);
+            snake.forEach((p,i) => { sCtx.fillStyle = i===0?"#fff":"#ccc"; sCtx.fillRect(p.x,p.y,10,10); });
+            setTimeout(sLoop, 80);
+        }
+        document.getElementById("snake-canvas").onclick = (e) => { e.stopPropagation(); isP = true; document.getElementById('snake-status').innerText = "🎮 Manual Override"; document.getElementById('snake-status').style.color = "#ff4444"; };
+        document.onclick = (e) => { if (e.target.closest('#lock-screen')) return; if (isP) { isP = false; document.getElementById('snake-status').innerText = "🤖 Auto (Click to override)"; document.getElementById('snake-status').style.color = "#888"; } };
+        document.onkeydown = (e) => {
+            if (!isP) return; if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.code)) e.preventDefault();
+            if (e.key === "ArrowLeft" && dx !== 10) { dx = -10; dy = 0; } else if (e.key === "ArrowUp" && dy !== 10) { dx = 0; dy = -10; }
+            else if (e.key === "ArrowRight" && dx !== -10) { dx = 10; dy = 0; } else if (e.key === "ArrowDown" && dy !== -10) { dx = 0; dy = 10; }
+        };
+        sLoop();
+
+        document.getElementById('change-bg').onclick = () => {
+            const walls = ["url('https://images.unsplash.com/photo-1515694346937-94d85e41e6f0?q=80&w=2564')", "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564')", "url('https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2565')", "url('https://images.unsplash.com/photo-1603366632490-2aa17ce4248f?q=80&w=2574')"];
+            document.body.style.backgroundImage = walls[Math.floor(Math.random() * walls.length)];
+        };
+    </script>
+</body>
+</html>
