@@ -46,7 +46,7 @@
 - Open `index.html` 
 - Now u can experience the elegant u os.
 ![Homepage](![alt text](image-1.png))
-![Homepage](https://file+.vscode-resource.vscode-cdn.net/f%3A/HACK%20CLUB%20PROJECTS/U%20web%20os/Screenshot%202026-05-09%20032247.png?version%3D1778279272572.png)
+![Homepage](Screenshot%202026-05-09%20032247.png)
 
 - Pull requests are welcomed!!
 
